@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,49 +6,64 @@ import { MatTableModule } from '@angular/material/table';
 import { DetalleFactura } from '../../models/detalle-factura';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
+import { FacturaService } from '../../services/factura.service';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-vista-factura',
-  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatSelectModule],
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatTableModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './vista-factura.html',
   styleUrl: './vista-factura.css',
 })
 export class VistaFactura implements OnInit {
+  public displayedColumns: string[] = ['producto', 'cantidad', 'precioUnitario', 'total'];
 
-  displayedColumns: string[] = ['producto', 'cantidad', 'precioUnitario', 'total'];
+  public datasource = signal<DetalleFactura[]>([]);
 
-  datasource : DetalleFactura[] = [
-    {
-      id : 1,
-      producto : 'Producto 1',
-      cantidad : 2,
-      precioUnitario : 50000,
-      total : 100000,
-      factura : {
-        id : 1,
-        numero : '0001',
-        cliente : 'Jorge segura',
-        usuario : 'super',
-        estado : 'activa',
-        fechaCreacion : new Date(),
-        subtotal : 80000,
-        impuestos : 15200,
-        total : 95200
-      }
-    }
-  ];
-
-  tiposUsuarios = [
+  public tiposUsuarios = [
     { value: 'operador', viewValue: 'Tipo A' },
     { value: 'supervisor', viewValue: 'Tipo B' },
   ];
 
   private activateRoute = inject(ActivatedRoute);
+  private facturaService = inject(FacturaService);
+  private fb = inject(FormBuilder);
+
+  public form = this.fb.group({
+    numero: new FormControl({ value: '', disabled: true }),
+    cliente: new FormControl({ value: '', disabled: true }),
+    fechaCreacion : new FormControl({value : new Date(), disabled : true}),
+    tipoUsuario : new FormControl(''),
+    estado : new FormControl({value : '', disabled : true}),
+    subtotal : new FormControl(0),
+    impuesto : new FormControl({value : 0, disabled : true}),
+    total : new FormControl({value : 0, disabled : true}),
+  });
 
   ngOnInit(): void {
-    const id = this.activateRoute.snapshot.paramMap.get('id');
-    console.log('ID de la factura:', id);
+    const id = parseInt(this.activateRoute.snapshot.paramMap.get('id') || '');
+    this.facturaService.obtenerFacturaId(id).subscribe({
+      next: (r) => {
+        this.form.patchValue({
+          numero: r.numero,
+          cliente: r.cliente,
+          fechaCreacion : r.fechaCreacion,
+          tipoUsuario : r.usuario,
+          estado : r.estado,
+          subtotal : r.subtotal,
+          impuesto : r.impuestos,
+          total : r.total,
+        });
+        this.datasource.set(r.detallesFactura);
+      },
+      error: (e) => console.error(e),
+    });
   }
-
-
 }

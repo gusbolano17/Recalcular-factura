@@ -2,6 +2,8 @@ package com.back.demo.models;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,9 +26,10 @@ public class DetalleFactura {
     private String producto;
     private Long cantidad;
     private BigDecimal precioUnitario;
-    private BigDecimal total;
+    private BigDecimal subtotal;
 
     @JoinColumn(name = "factura_id", referencedColumnName = "id")
+    @JsonBackReference
     @ManyToOne
     private Factura factura;
 

@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,6 +37,7 @@ public class Factura {
     @CreationTimestamp
     private LocalDateTime fechaCreacion;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "factura")
     private List<DetalleFactura> detallesFactura;
 

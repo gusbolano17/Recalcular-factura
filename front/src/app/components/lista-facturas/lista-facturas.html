@@ -1,6 +1,6 @@
 <div class="p-4 mb-6">
   <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-    <table mat-table [dataSource]="datasource" class="mat-elevation-z8">
+    <table mat-table [dataSource]="datasource()" class="mat-elevation-z8">
 
       <ng-container matColumnDef="numero">
         <th mat-header-cell *matHeaderCellDef>Numero</th>

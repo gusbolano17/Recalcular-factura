@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
-import { Factura } from '../../models/factura';
 import { Router } from '@angular/router';
+import { FacturaService } from '../../services/factura.service';
+import { Factura } from '../../models/factura';
 
 @Component({
   selector: 'app-lista-facturas',
@@ -10,23 +11,19 @@ import { Router } from '@angular/router';
   templateUrl: './lista-facturas.html',
   styleUrl: './lista-facturas.css',
 })
-export class ListaFacturas {
+export class ListaFacturas implements OnInit{
   displayedColumns: string[] = ['numero', 'cliente', 'estado', 'total', 'acciones'];
-  datasource: Factura[] = [
-    {
-      id: 1,
-      numero: '0001',
-      cliente: 'Jorge segura',
-      estado: 'activa',
-      fechaCreacion: new Date(),
-      impuestos: 15200,
-      subtotal: 80000,
-      total: 95200,
-      usuario: 'super',
-    },
-  ];
+  public datasource = signal<Factura[]>([]);
 
   private router = inject(Router);
+  private facturaService = inject(FacturaService);
+
+  ngOnInit(): void {
+    this.facturaService.listarFacturas().subscribe({
+      next: (r) => this.datasource.set(r),
+      error: (e) => console.error(e)
+    })
+  }
 
   verFactura(id: number) {
     this.router.navigate([`/factura/${id}`]);

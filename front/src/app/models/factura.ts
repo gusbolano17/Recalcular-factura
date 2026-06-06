@@ -1,3 +1,5 @@
+import { DetalleFactura } from "./detalle-factura";
+
 export interface Factura {
     id : number;
     numero : string;
@@ -8,4 +10,5 @@ export interface Factura {
     subtotal : number;
     impuestos : number;
     total : number;
+    detallesFactura : DetalleFactura[]
 }
