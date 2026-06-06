@@ -1,6 +1,10 @@
 package com.back.demo.models;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,9 +26,16 @@ public class Factura {
     private Long id;
     private String numero;
     private String cliente;
-    private Double total;
+    private String usuario;
+    private String estado;
+    private BigDecimal subtotal;
+    private BigDecimal impuestos;
+    private BigDecimal total;
+
+    @CreationTimestamp
+    private LocalDateTime fechaCreacion;
 
     @OneToMany(mappedBy = "factura")
     private List<DetalleFactura> detallesFactura;
-    
+
 }

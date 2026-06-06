@@ -17,5 +17,9 @@ public class FacturaService {
     public List<Factura> listarFacturas() throws Exception {
         return facturaRepository.findAll();
     }
-    
+
+    public Factura obtenerFacturaId(Long id) throws Exception {
+        return facturaRepository.findById(id).orElseThrow(() -> new Exception("Factura no encontrada"));
+    }
+
 }

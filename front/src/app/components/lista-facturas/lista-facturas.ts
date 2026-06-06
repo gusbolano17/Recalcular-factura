@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { Factura } from '../../models/factura';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-lista-facturas',
@@ -24,4 +25,10 @@ export class ListaFacturas {
       usuario: 'super',
     },
   ];
+
+  private router = inject(Router);
+
+  verFactura(id: number) {
+    this.router.navigate([`/factura/${id}`]);
+  }
 }

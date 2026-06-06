@@ -12,7 +12,7 @@ export const routes: Routes = [
       import('./components/lista-facturas/lista-facturas').then((m) => m.ListaFacturas),
   },
   {
-    path: 'factura',
+    path: 'factura/:id',
     loadComponent: () =>
       import('./components/vista-factura/vista-factura').then((m) => m.VistaFactura),
   },
