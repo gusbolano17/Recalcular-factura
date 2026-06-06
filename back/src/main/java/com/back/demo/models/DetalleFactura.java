@@ -24,7 +24,7 @@ public class DetalleFactura {
     private String producto;
     private Long cantidad;
     private BigDecimal precioUnitario;
-    private BigDecimal subtotal;
+    private BigDecimal total;
 
     @JoinColumn(name = "factura_id", referencedColumnName = "id")
     @ManyToOne
