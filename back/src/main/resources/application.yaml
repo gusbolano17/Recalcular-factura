@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: prueba-recalculo-factura
+  datasource:
+    url: jdbc:postgresql://localhost:5432/prueba_tecnica
+    username: postgres
+    password: developer2026
+  jpa:
+    hibernate:
+      ddl-auto: update
