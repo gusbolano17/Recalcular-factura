@@ -5,6 +5,6 @@ export interface DetalleFactura{
     producto : string;
     cantidad : number;
     precioUnitario : number;
-    total : number;
+    subtotal : number;
     factura : Factura;
 }

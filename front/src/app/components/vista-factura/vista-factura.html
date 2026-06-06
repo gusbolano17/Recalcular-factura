@@ -1,6 +1,6 @@
 <div class="container ml-auto mr-auto flex flex-wrap items-start mt-8">
   <div class="w-full pl-2 pr-2 mb-4 mt-4">
-    <h1 class="text-3xl font-extrabold text-center">Factura 1</h1>
+    <h1 class="text-3xl font-extrabold text-center">Recalculo de Factura</h1>
   </div>
 </div>
 <div class="container ml-auto mr-auto flex items-center justify-center">
@@ -51,7 +51,7 @@
         </mat-form-field>
       </div>
       <div class="flex items-center justify-end">
-        <button matButton>Recalcular</button>
+        <button matButton (click)="recalcularFactura()">Recalcular</button>
         <button matButton>Guardar</button>
       </div>
     </form>
