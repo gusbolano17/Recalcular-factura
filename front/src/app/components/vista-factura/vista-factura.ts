@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { FacturaService } from '../../services/factura.service';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FacturaReqDto } from '../../models/factura-dto';
 
 @Component({
   selector: 'app-vista-factura',
@@ -38,6 +39,8 @@ export class VistaFactura implements OnInit {
   private facturaService = inject(FacturaService);
   private fb = inject(FormBuilder);
 
+  private id : number = 0;
+
   public form = this.fb.group({
     numero: new FormControl({ value: '', disabled: true }),
     cliente: new FormControl({ value: '', disabled: true }),
@@ -50,8 +53,8 @@ export class VistaFactura implements OnInit {
   });
 
   ngOnInit(): void {
-    const id = parseInt(this.activateRoute.snapshot.paramMap.get('id') || '');
-    this.facturaService.obtenerFacturaId(id).subscribe({
+    this.id = parseInt(this.activateRoute.snapshot.paramMap.get('id') || '');
+    this.facturaService.obtenerFacturaId(this.id).subscribe({
       next: (r) => {
         this.form.patchValue({
           numero: r.numero,
@@ -71,21 +74,32 @@ export class VistaFactura implements OnInit {
   }
 
   recalcularFactura() {
-    const nuevoSubtotal = this.form.get('subtotal')?.value ?? 0;
-    const porcentaje = Math.abs(this.valorInicial() - nuevoSubtotal) / this.valorInicial();
-    for (let d of this.datasource()) {
-      if (nuevoSubtotal < this.valorInicial()) {
-        d.precioUnitario = d.precioUnitario * (1 - porcentaje);
-      } else {
-        d.precioUnitario = d.precioUnitario * (1 + porcentaje);
-      }
-      d.subtotal = d.precioUnitario * d.cantidad;
+    const body : FacturaReqDto = {
+      id : this.id,
+      nuevoValor : this.form.get('subtotal')?.value ?? 0
     }
 
-    const impuestos = (this.form.get('subtotal')?.value ?? 0) * 0.19;
-    const total = nuevoSubtotal + impuestos;
-    this.form.patchValue({ impuesto: impuestos, total });
+    this.facturaService.recalcularFactura(body).subscribe({
+      next: (r) => {
+        this.form.patchValue({
+          impuesto: r.impuestos,
+          total: (this.form.get('subtotal')?.value ?? 0) + r.impuestos,
+        })
 
-    this.valorInicial.set(nuevoSubtotal);
+        for(const det of this.datasource()){
+          const precioUnitario = r.detalle.find(d => d.id === det.id)?.precioUnitario;
+          const subtotal = r.detalle.find(d => d.id === det.id)?.subtotal;
+          const cantidad = r.detalle.find(d => d.id === det.id)?.cantidad;
+
+          if (precioUnitario !== undefined && subtotal !== undefined && cantidad !== undefined) {
+            det.precioUnitario = precioUnitario;
+            det.subtotal = subtotal;
+            det.cantidad = cantidad;
+          }
+        }
+      },
+      error: (e) => console.error(e)
+    })
   }
+
 }
