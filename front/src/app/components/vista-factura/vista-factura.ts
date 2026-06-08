@@ -12,10 +12,12 @@ import { FacturaService } from '../../services/factura.service';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FacturaReqDto } from '../../models/factura-dto';
 import { Factura } from '../../models/factura';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-vista-factura',
   imports: [
+    CurrencyPipe,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,

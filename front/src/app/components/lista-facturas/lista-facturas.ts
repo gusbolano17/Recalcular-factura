@@ -5,10 +5,11 @@ import { Router } from '@angular/router';
 import { FacturaService } from '../../services/factura.service';
 import { Factura } from '../../models/factura';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-lista-facturas',
-  imports: [MatTableModule, MatButtonModule],
+  imports: [MatTableModule, MatButtonModule, CurrencyPipe],
   templateUrl: './lista-facturas.html',
   styleUrl: './lista-facturas.css',
 })
