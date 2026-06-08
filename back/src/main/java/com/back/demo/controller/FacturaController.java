@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.back.demo.models.Factura;
 import com.back.demo.models.dto.FacturaReq;
 import com.back.demo.service.FacturaService;
 
@@ -41,8 +42,8 @@ public class FacturaController {
     }
 
     @PutMapping("/actualizar")
-    public ResponseEntity<?> actualizarFactura(@RequestBody FacturaReq req) throws Exception {
-        return ResponseEntity.ok(facturaService.actualizarFactura(req));
+    public ResponseEntity<?> actualizarFactura(@RequestBody Factura body) throws Exception {
+        return ResponseEntity.ok(facturaService.actualizarFactura(body));
     }
     
     

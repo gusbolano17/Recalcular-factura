@@ -13,6 +13,7 @@ import com.back.demo.models.Factura;
 import com.back.demo.models.dto.FacturaDetDto;
 import com.back.demo.models.dto.FacturaReq;
 import com.back.demo.models.dto.FacturaResp;
+import com.back.demo.repository.IDetalleFacturaRepository;
 import com.back.demo.repository.IFacturaRepository;
 
 @Service
@@ -20,6 +21,8 @@ public class FacturaService {
 
     @Autowired
     private IFacturaRepository facturaRepository;
+    @Autowired
+    private IDetalleFacturaRepository detalleFacturaRepository;
 
     public List<Factura> listarFacturas() throws Exception {
         return facturaRepository.findAll();
@@ -55,34 +58,20 @@ public class FacturaService {
         return new FacturaResp(detalles, impuestos);
     }
 
-    public Map<String, String> actualizarFactura(FacturaReq req) throws Exception {
-        Factura factura = obtenerFacturaId(req.id());
+    public Map<String, String> actualizarFactura(Factura body) throws Exception {
 
-        BigDecimal valorInicial = factura.getSubtotal();
-        BigDecimal nuevoSubtotal = req.nuevoValor();
+        try {
+            facturaRepository.save(body);
 
-        BigDecimal diferencia = valorInicial.subtract(req.nuevoValor()).abs();
-        BigDecimal porcentaje = diferencia.divide(valorInicial, 2, RoundingMode.HALF_EVEN);
-
-        BigDecimal impuestos = nuevoSubtotal.multiply(BigDecimal.valueOf(0.19));
-        BigDecimal valorTotal = nuevoSubtotal.add(impuestos);
-
-        Integer compare = valorInicial.compareTo(factura.getSubtotal());
-
-        if (compare < 0) {
-            recalcularProductos(factura.getDetallesFactura(), porcentaje, true);
-        } else {
-            recalcularProductos(factura.getDetallesFactura(), porcentaje, true);
+            body.getDetallesFactura().forEach(p -> {
+                detalleFacturaRepository.save(p);
+            });
+            return Map.of("message", "Factura actualizada correctamente");
+        } catch (Exception e) {
+            return Map.of("message", "Error al actualizar la factura: " + e.getMessage());
         }
+        
 
-        factura.setSubtotal(req.nuevoValor());
-        factura.setImpuestos(impuestos);
-        factura.setTotal(valorTotal);
-        factura.setUsuario(req.usuario());
-
-        facturaRepository.save(factura);
-
-        return Map.of("message", "Factura actualizada correctamente");
     }
 
     private void recalcularProductos(List<DetalleFactura> detalleFactura, BigDecimal diferencia, Boolean esDescuento)
@@ -90,12 +79,13 @@ public class FacturaService {
         detalleFactura.stream()
                 .forEach(det -> {
                     BigDecimal valorProducto = det.getPrecioUnitario();
-                    BigDecimal porcentaje = valorProducto.divide(det.getFactura().getSubtotal(), 3, RoundingMode.HALF_DOWN);
+                    BigDecimal porcentaje = valorProducto.divide(det.getFactura().getSubtotal(), 3,
+                            RoundingMode.HALF_DOWN);
                     BigDecimal valorDistribuido = diferencia.multiply(porcentaje);
 
                     BigDecimal nuevoValor = esDescuento ? valorProducto.subtract(valorDistribuido)
                             : valorProducto.add(valorDistribuido);
-                    
+
                     det.setPrecioUnitario(nuevoValor);
                     det.setSubtotal(nuevoValor.multiply(BigDecimal.valueOf(det.getCantidad())));
                 });

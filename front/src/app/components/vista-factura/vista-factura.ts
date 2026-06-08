@@ -9,6 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FacturaService } from '../../services/factura.service';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { FacturaReqDto } from '../../models/factura-dto';
+import { Factura } from '../../models/factura';
 
 @Component({
   selector: 'app-vista-factura',
@@ -103,10 +104,19 @@ export class VistaFactura implements OnInit {
   }
 
   actualizarFactura() {
-    const body: FacturaReqDto = {
+
+    const body: Factura = {
       id: this.id,
-      nuevoValor: this.form.get('subtotal')?.value ?? 0,
-    };
+      detallesFactura: this.datasource(),
+      fechaCreacion: this.form.get('fechaCreacion')?.value ?? new Date(),
+      cliente: this.form.get('cliente')?.value ?? '',
+      estado: this.form.get('estado')?.value ?? '',
+      numero: this.form.get('numero')?.value ?? '',
+      subtotal: this.form.get('subtotal')?.value ?? 0,
+      total: this.form.get('total')?.value ?? 0,
+      impuestos : this.form.get('impuesto')?.value ?? 0,
+      usuario : this.form.get('tipoUsuario')?.value ?? '',
+    }
 
     this.facturaService.actualizarFactura(body).subscribe({
       next: (r) => console.log('Factura actualizada'),
