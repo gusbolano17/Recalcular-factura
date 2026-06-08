@@ -22,6 +22,10 @@ export class FacturaService {
 
   recalcularFactura(body : FacturaReqDto) : Observable<FacturaRespDto>{
     return this.http.post<FacturaRespDto>(`${this.urlApi}/recalcular`, body);
-  } 
+  }
+
+  actualizarFactura(body : FacturaReqDto) : Observable<any> {
+    return this.http.put<any>(`${this.urlApi}/actualizar`, body);
+  }
 
 }

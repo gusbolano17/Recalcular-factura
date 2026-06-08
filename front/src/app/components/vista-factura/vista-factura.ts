@@ -39,7 +39,7 @@ export class VistaFactura implements OnInit {
   private facturaService = inject(FacturaService);
   private fb = inject(FormBuilder);
 
-  private id : number = 0;
+  private id: number = 0;
 
   public form = this.fb.group({
     numero: new FormControl({ value: '', disabled: true }),
@@ -74,22 +74,22 @@ export class VistaFactura implements OnInit {
   }
 
   recalcularFactura() {
-    const body : FacturaReqDto = {
-      id : this.id,
-      nuevoValor : this.form.get('subtotal')?.value ?? 0
-    }
+    const body: FacturaReqDto = {
+      id: this.id,
+      nuevoValor: this.form.get('subtotal')?.value ?? 0,
+    };
 
     this.facturaService.recalcularFactura(body).subscribe({
       next: (r) => {
         this.form.patchValue({
           impuesto: r.impuestos,
           total: (this.form.get('subtotal')?.value ?? 0) + r.impuestos,
-        })
+        });
 
-        for(const det of this.datasource()){
-          const precioUnitario = r.detalle.find(d => d.id === det.id)?.precioUnitario;
-          const subtotal = r.detalle.find(d => d.id === det.id)?.subtotal;
-          const cantidad = r.detalle.find(d => d.id === det.id)?.cantidad;
+        for (const det of this.datasource()) {
+          const precioUnitario = r.detalle.find((d) => d.id === det.id)?.precioUnitario;
+          const subtotal = r.detalle.find((d) => d.id === det.id)?.subtotal;
+          const cantidad = r.detalle.find((d) => d.id === det.id)?.cantidad;
 
           if (precioUnitario !== undefined && subtotal !== undefined && cantidad !== undefined) {
             det.precioUnitario = precioUnitario;
@@ -98,8 +98,19 @@ export class VistaFactura implements OnInit {
           }
         }
       },
-      error: (e) => console.error(e)
-    })
+      error: (e) => console.error(e),
+    });
   }
 
+  actualizarFactura() {
+    const body: FacturaReqDto = {
+      id: this.id,
+      nuevoValor: this.form.get('subtotal')?.value ?? 0,
+    };
+
+    this.facturaService.actualizarFactura(body).subscribe({
+      next: (r) => console.log('Factura actualizada'),
+      error: (e) => console.error(e),
+    })
+  }
 }

@@ -6,12 +6,14 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.back.demo.models.dto.FacturaReq;
 import com.back.demo.service.FacturaService;
+
 
 
 
@@ -36,6 +38,11 @@ public class FacturaController {
     @PostMapping("/recalcular")
     public ResponseEntity<?> recalcularFactura(@RequestBody FacturaReq req) throws Exception{
         return ResponseEntity.ok(facturaService.recalcularFactura(req));
+    }
+
+    @PutMapping("/actualizar")
+    public ResponseEntity<?> actualizarFactura(@RequestBody FacturaReq req) throws Exception {
+        return ResponseEntity.ok(facturaService.actualizarFactura(req));
     }
     
     
