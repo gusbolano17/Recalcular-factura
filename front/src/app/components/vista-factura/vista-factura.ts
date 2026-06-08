@@ -2,11 +2,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import {MatIconModule} from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { DetalleFactura } from '../../models/detalle-factura';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FacturaService } from '../../services/factura.service';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FacturaReqDto } from '../../models/factura-dto';
@@ -16,6 +17,7 @@ import { Factura } from '../../models/factura';
   selector: 'app-vista-factura',
   imports: [
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatButtonModule,
     MatTableModule,
@@ -38,6 +40,7 @@ export class VistaFactura implements OnInit {
   valorInicial = signal<number>(0);
 
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
   private activateRoute = inject(ActivatedRoute);
   private facturaService = inject(FacturaService);
   private fb = inject(FormBuilder);
@@ -162,5 +165,9 @@ export class VistaFactura implements OnInit {
         });
       },
     });
+  }
+
+  regresar(){
+    this.router.navigate(['/facturas']);
   }
 }

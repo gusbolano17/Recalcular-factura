@@ -1,19 +1,20 @@
-<div class="container ml-auto mr-auto flex flex-wrap items-start mt-8">
-  <div class="w-full pl-2 pr-2 mb-4 mt-4">
-    <h1 class="text-3xl font-extrabold text-center">Recalculo de Factura</h1>
-  </div>
-</div>
 <div class="container ml-auto mr-auto flex items-center justify-center">
   <div class="w-full md:w-1/2">
-    <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" [formGroup]="form">
+    <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 mt-8" [formGroup]="form">
+      <div class="relative w-full py-4 my-4">
+        <button matIconButton class="absolute left-0 top-1/2 -translate-y-1/2" aria-label="Regresar" (click)="regresar()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1 class="text-3xl font-extrabold text-center">Recalculo de Factura</h1>
+      </div>
       <div class="mb-4 flex items-center gap-4">
         <mat-form-field class="w-1/2">
           <mat-label>Numero</mat-label>
-          <input matInput placeholder="Numero de factura" formControlName="numero"/>
+          <input matInput placeholder="Numero de factura" formControlName="numero" />
         </mat-form-field>
         <mat-form-field class="w-1/2">
           <mat-label>Cliente</mat-label>
-          <input matInput placeholder="Nombre del cliente" formControlName="cliente"/>
+          <input matInput placeholder="Nombre del cliente" formControlName="cliente" />
         </mat-form-field>
       </div>
       <div class="mb-4 flex items-center gap-4">
@@ -28,6 +29,9 @@
               <mat-option [value]="tipoUsuario.value">{{ tipoUsuario.viewValue }}</mat-option>
             }
           </mat-select>
+          @if (form.get('tipoUsuario')?.invalid && form.get('tipoUsuario')?.touched) {
+            <mat-error>Tipo usuario invalido</mat-error>
+          }
         </mat-form-field>
       </div>
       <div class="mb-4 flex items-center gap-4">
@@ -37,7 +41,15 @@
         </mat-form-field>
         <mat-form-field class="w-1/2">
           <mat-label>Subtotal</mat-label>
-          <input matInput type="number" placeholder="Subtotal de la factura" formControlName="subtotal" />
+          <input
+            matInput
+            type="number"
+            placeholder="Subtotal de la factura"
+            formControlName="subtotal"
+          />
+          @if (form.get('subtotal')?.invalid && form.get('subtotal')?.touched) {
+            <mat-error>Debes ingresar el subtotal</mat-error>
+          }
         </mat-form-field>
       </div>
       <div class="mb-4 flex items-center gap-4">
