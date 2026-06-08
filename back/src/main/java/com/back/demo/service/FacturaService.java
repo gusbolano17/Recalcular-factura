@@ -36,14 +36,13 @@ public class FacturaService {
         BigDecimal valorInicial = factura.getSubtotal();
         BigDecimal nuevoSubtotal = req.nuevoValor();
         BigDecimal diferencia = valorInicial.subtract(nuevoSubtotal).abs();
-        BigDecimal porcentaje = diferencia.divide(valorInicial, 2, RoundingMode.HALF_EVEN);
 
         Integer compare = nuevoSubtotal.compareTo(valorInicial);
 
         if (compare < 0) {
-            recalcularProductos(factura.getDetallesFactura(), porcentaje, true);
+            recalcularProductos(factura.getDetallesFactura(), diferencia, true);
         } else {
-            recalcularProductos(factura.getDetallesFactura(), porcentaje, false);
+            recalcularProductos(factura.getDetallesFactura(), diferencia, false);
         }
 
         BigDecimal impuestos = nuevoSubtotal.multiply(BigDecimal.valueOf(0.19));
@@ -63,7 +62,7 @@ public class FacturaService {
         BigDecimal nuevoSubtotal = req.nuevoValor();
 
         BigDecimal diferencia = valorInicial.subtract(req.nuevoValor()).abs();
-        BigDecimal porcentaje = diferencia.divide(valorInicial, RoundingMode.FLOOR);
+        BigDecimal porcentaje = diferencia.divide(valorInicial, 2, RoundingMode.HALF_EVEN);
 
         BigDecimal impuestos = nuevoSubtotal.multiply(BigDecimal.valueOf(0.19));
         BigDecimal valorTotal = nuevoSubtotal.add(impuestos);
@@ -86,13 +85,17 @@ public class FacturaService {
         return Map.of("message", "Factura actualizada correctamente");
     }
 
-    private void recalcularProductos(List<DetalleFactura> detalleFactura, BigDecimal porcentaje, Boolean esDescuento)
+    private void recalcularProductos(List<DetalleFactura> detalleFactura, BigDecimal diferencia, Boolean esDescuento)
             throws Exception {
         detalleFactura.stream()
                 .forEach(det -> {
                     BigDecimal valorProducto = det.getPrecioUnitario();
-                    BigDecimal nuevoValor = esDescuento ? valorProducto.subtract(valorProducto.multiply(porcentaje))
-                            : valorProducto.add(valorProducto.multiply(porcentaje));
+                    BigDecimal porcentaje = valorProducto.divide(det.getFactura().getSubtotal(), 3, RoundingMode.HALF_DOWN);
+                    BigDecimal valorDistribuido = diferencia.multiply(porcentaje);
+
+                    BigDecimal nuevoValor = esDescuento ? valorProducto.subtract(valorDistribuido)
+                            : valorProducto.add(valorDistribuido);
+                    
                     det.setPrecioUnitario(nuevoValor);
                     det.setSubtotal(nuevoValor.multiply(BigDecimal.valueOf(det.getCantidad())));
                 });
