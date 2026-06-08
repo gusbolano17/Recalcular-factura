@@ -1,5 +1,7 @@
 package com.back.demo.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.back.demo.models.Factura;
 import com.back.demo.models.dto.FacturaReq;
+import com.back.demo.models.dto.FacturaResp;
+import com.back.demo.models.dto.ResponseDto;
 import com.back.demo.service.FacturaService;
 
 
@@ -27,23 +31,23 @@ public class FacturaController {
     private FacturaService facturaService;
 
     @GetMapping("/listar-factura")
-    public ResponseEntity<?> listarFacturas() throws Exception {
-        return ResponseEntity.ok(facturaService.listarFacturas());
+    public ResponseEntity<ResponseDto<List<Factura>>> listarFacturas() throws Exception {
+        return facturaService.listarFacturas();
     }
 
     @GetMapping("/obtener-factura/{id}")
-    public ResponseEntity<?> obtenerFacturaId(@PathVariable Long id) throws Exception{
-        return ResponseEntity.ok(facturaService.obtenerFacturaId(id));
+    public ResponseEntity<ResponseDto<Factura>> obtenerFacturaId(@PathVariable Long id) throws Exception{
+        return facturaService.obtenerFacturaId(id);
     }
     
     @PostMapping("/recalcular")
-    public ResponseEntity<?> recalcularFactura(@RequestBody FacturaReq req) throws Exception{
-        return ResponseEntity.ok(facturaService.recalcularFactura(req));
+    public ResponseEntity<ResponseDto<FacturaResp>> recalcularFactura(@RequestBody FacturaReq req) throws Exception{
+        return facturaService.recalcularFactura(req);
     }
 
     @PutMapping("/actualizar")
-    public ResponseEntity<?> actualizarFactura(@RequestBody Factura body) throws Exception {
-        return ResponseEntity.ok(facturaService.actualizarFactura(body));
+    public ResponseEntity<ResponseDto<Factura>> actualizarFactura(@RequestBody Factura body) throws Exception {
+        return facturaService.actualizarFactura(body);
     }
     
     

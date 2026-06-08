@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { FacturaService } from '../../services/factura.service';
 import { Factura } from '../../models/factura';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-lista-facturas',
@@ -11,18 +12,32 @@ import { Factura } from '../../models/factura';
   templateUrl: './lista-facturas.html',
   styleUrl: './lista-facturas.css',
 })
-export class ListaFacturas implements OnInit{
+export class ListaFacturas implements OnInit {
   displayedColumns: string[] = ['numero', 'cliente', 'estado', 'total', 'acciones'];
   public datasource = signal<Factura[]>([]);
 
+  private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private facturaService = inject(FacturaService);
 
   ngOnInit(): void {
     this.facturaService.listarFacturas().subscribe({
-      next: (r) => this.datasource.set(r),
-      error: (e) => console.error(e)
-    })
+      next: (r) => {
+        this.datasource.set(r.body);
+        this.snackBar.open(r.mensaje, 'cerrar', {
+          duration: 2500,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+        });
+      },
+      error: (e) => {
+          this.snackBar.open(e.error.mensaje || e.message, 'cerrar', {
+          duration : 2500,
+          horizontalPosition : 'center',
+          verticalPosition : 'top'
+        });
+      },
+    });
   }
 
   verFactura(id: number) {

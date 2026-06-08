@@ -1,6 +1,7 @@
 export interface FacturaReqDto{
     id : number;
     nuevoValor : number;
+    usuario : string;
 }
 
 export interface FacturaRespDto{

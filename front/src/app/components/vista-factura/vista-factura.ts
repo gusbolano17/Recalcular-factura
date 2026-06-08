@@ -1,3 +1,4 @@
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -7,7 +8,7 @@ import { DetalleFactura } from '../../models/detalle-factura';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { FacturaService } from '../../services/factura.service';
-import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FacturaReqDto } from '../../models/factura-dto';
 import { Factura } from '../../models/factura';
 
@@ -36,6 +37,7 @@ export class VistaFactura implements OnInit {
 
   valorInicial = signal<number>(0);
 
+  private snackBar = inject(MatSnackBar);
   private activateRoute = inject(ActivatedRoute);
   private facturaService = inject(FacturaService);
   private fb = inject(FormBuilder);
@@ -46,9 +48,9 @@ export class VistaFactura implements OnInit {
     numero: new FormControl({ value: '', disabled: true }),
     cliente: new FormControl({ value: '', disabled: true }),
     fechaCreacion: new FormControl({ value: new Date(), disabled: true }),
-    tipoUsuario: new FormControl(''),
+    tipoUsuario: new FormControl('', Validators.required),
     estado: new FormControl({ value: '', disabled: true }),
-    subtotal: new FormControl(0),
+    subtotal: new FormControl(0, Validators.required),
     impuesto: new FormControl({ value: 0, disabled: true }),
     total: new FormControl({ value: 0, disabled: true }),
   });
@@ -57,20 +59,33 @@ export class VistaFactura implements OnInit {
     this.id = parseInt(this.activateRoute.snapshot.paramMap.get('id') || '');
     this.facturaService.obtenerFacturaId(this.id).subscribe({
       next: (r) => {
+        const body = r.body;
         this.form.patchValue({
-          numero: r.numero,
-          cliente: r.cliente,
-          fechaCreacion: r.fechaCreacion,
-          tipoUsuario: r.usuario,
-          estado: r.estado,
-          subtotal: r.subtotal,
-          impuesto: r.impuestos,
-          total: r.total,
+          numero: body.numero,
+          cliente: body.cliente,
+          fechaCreacion: body.fechaCreacion,
+          tipoUsuario: body.usuario,
+          estado: body.estado,
+          subtotal: body.subtotal,
+          impuesto: body.impuestos,
+          total: body.total,
         });
-        this.datasource.set(r.detallesFactura);
-        this.valorInicial.set(r.subtotal);
+        this.datasource.set(body.detallesFactura);
+        this.valorInicial.set(body.subtotal);
+
+        this.snackBar.open(r.mensaje, 'cerrar', {
+          duration: 2500,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+        });
       },
-      error: (e) => console.error(e),
+      error: (e) => {
+        this.snackBar.open(e.error.mensaje || e.message, 'cerrar', {
+          duration: 2500,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+        });
+      },
     });
   }
 
@@ -78,19 +93,21 @@ export class VistaFactura implements OnInit {
     const body: FacturaReqDto = {
       id: this.id,
       nuevoValor: this.form.get('subtotal')?.value ?? 0,
+      usuario: this.form.get('tipoUsuario')?.value ?? ''
     };
 
     this.facturaService.recalcularFactura(body).subscribe({
       next: (r) => {
+        const body = r.body;
         this.form.patchValue({
-          impuesto: r.impuestos,
-          total: (this.form.get('subtotal')?.value ?? 0) + r.impuestos,
+          impuesto: body.impuestos,
+          total: (this.form.get('subtotal')?.value ?? 0) + body.impuestos,
         });
 
         for (const det of this.datasource()) {
-          const precioUnitario = r.detalle.find((d) => d.id === det.id)?.precioUnitario;
-          const subtotal = r.detalle.find((d) => d.id === det.id)?.subtotal;
-          const cantidad = r.detalle.find((d) => d.id === det.id)?.cantidad;
+          const precioUnitario = body.detalle.find((d) => d.id === det.id)?.precioUnitario;
+          const subtotal = body.detalle.find((d) => d.id === det.id)?.subtotal;
+          const cantidad = body.detalle.find((d) => d.id === det.id)?.cantidad;
 
           if (precioUnitario !== undefined && subtotal !== undefined && cantidad !== undefined) {
             det.precioUnitario = precioUnitario;
@@ -98,13 +115,24 @@ export class VistaFactura implements OnInit {
             det.cantidad = cantidad;
           }
         }
+
+        this.snackBar.open(r.mensaje, 'cerrar', {
+          duration: 2500,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+        });
       },
-      error: (e) => console.error(e),
+      error: (e) => {
+        this.snackBar.open(e.error.mensaje || e.message, 'cerrar', {
+          duration: 2500,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+        });
+      },
     });
   }
 
   actualizarFactura() {
-
     const body: Factura = {
       id: this.id,
       detallesFactura: this.datasource(),
@@ -114,13 +142,25 @@ export class VistaFactura implements OnInit {
       numero: this.form.get('numero')?.value ?? '',
       subtotal: this.form.get('subtotal')?.value ?? 0,
       total: this.form.get('total')?.value ?? 0,
-      impuestos : this.form.get('impuesto')?.value ?? 0,
-      usuario : this.form.get('tipoUsuario')?.value ?? '',
-    }
+      impuestos: this.form.get('impuesto')?.value ?? 0,
+      usuario: this.form.get('tipoUsuario')?.value ?? '',
+    };
 
     this.facturaService.actualizarFactura(body).subscribe({
-      next: (r) => console.log('Factura actualizada'),
-      error: (e) => console.error(e),
-    })
+      next: (r) => {
+        this.snackBar.open(r.mensaje, 'cerrar', {
+          duration: 2500,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+        });
+      },
+      error: (e) => {
+        this.snackBar.open(e.error.mensaje || e.message, 'cerrar', {
+          duration: 2500,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+        });
+      },
+    });
   }
 }
