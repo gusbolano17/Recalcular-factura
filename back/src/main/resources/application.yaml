@@ -5,6 +5,10 @@ spring:
     url: jdbc:postgresql://localhost:5432/prueba_tecnica
     username: postgres
     password: developer2026
+  sql:
+    init:
+      mode: always
   jpa:
+    defer-datasource-initialization: true 
     hibernate:
       ddl-auto: update
